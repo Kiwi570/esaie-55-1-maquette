@@ -17,7 +17,7 @@
   E.eauPret = new Promise((res) => { E._eauResoudre = res; setTimeout(() => res(null), 4000); });
 
   if (G) {
-    G.registerPlugin(ScrollTrigger, SplitText, Flip);
+    G.registerPlugin(ScrollTrigger, SplitText);
     G.defaults({ ease: 'power3.out' });
     ScrollTrigger.config({ ignoreMobileResize: true });
   }
@@ -34,10 +34,18 @@
   E.allerA = function (cible, opts) {
     const el = typeof cible === 'string' ? $(cible) : cible;
     if (!el) return;
-    if (lenis) lenis.scrollTo(el, Object.assign({ offset: -84, duration: 1.5 }, opts || {}));
+    const o = Object.assign({ offset: -84, duration: 1.5, focus: true }, opts || {});
+    const focaliser = o.focus;
+    delete o.focus;
+    if (lenis) lenis.scrollTo(el, o);
     else {
       const y = el.getBoundingClientRect().top + window.scrollY - 84;
       window.scrollTo({ top: y, behavior: calme ? 'auto' : 'smooth' });
+    }
+    // Le clavier suit le défilement : la prochaine tabulation part de la section atteinte
+    if (focaliser) {
+      if (!el.matches('a[href], button, input, select, textarea, [tabindex]')) el.setAttribute('tabindex', '-1');
+      el.focus({ preventScroll: true });
     }
   };
 
@@ -46,13 +54,27 @@
     b.setAttribute('aria-pressed', calme ? 'true' : 'false');
     b.addEventListener('click', () => {
       try { localStorage.setItem('esaie-calme', calme ? '0' : '1'); } catch (e) { /* stockage indisponible */ }
-      try { sessionStorage.setItem('esaie-defil', String(window.scrollY)); } catch (e) { /* idem */ }
+      // On retient la section affichée (et non la position brute, qui change avec les sections épinglées)
+      const repere = $$('main [id], footer').find((s) => s.getBoundingClientRect().bottom > 90);
+      if (repere) {
+        const id = repere.id || '';
+        const decalage = Math.round(90 - repere.getBoundingClientRect().top);
+        try { sessionStorage.setItem('esaie-defil', JSON.stringify({ id, decalage })); } catch (e) { /* idem */ }
+      }
       location.reload();
     });
   });
   try {
-    const y = sessionStorage.getItem('esaie-defil');
-    if (y !== null) { sessionStorage.removeItem('esaie-defil'); window.addEventListener('load', () => window.scrollTo(0, +y)); }
+    const memo = JSON.parse(sessionStorage.getItem('esaie-defil') || 'null');
+    if (memo) {
+      sessionStorage.removeItem('esaie-defil');
+      window.addEventListener('load', () => setTimeout(() => {
+        const cible = memo.id ? document.getElementById(memo.id) : $('footer');
+        if (!cible) return;
+        const y = cible.getBoundingClientRect().top + window.scrollY - 90 + Math.max(0, memo.decalage);
+        if (lenis) lenis.scrollTo(y, { immediate: true, force: true }); else window.scrollTo(0, y);
+      }, 60));
+    }
   } catch (e) { /* idem */ }
 
   /* ---------- En-tête : fond, masquage, couleur selon la section ---------- */
@@ -63,9 +85,10 @@
     tickEntete = false;
     const y = window.scrollY;
     entete.classList.toggle('est-defile', y > 30);
-    if (!menuOuvert) entete.classList.toggle('est-cache', y > dernierY + 2 && y > 520);
-    if (y < dernierY - 2) entete.classList.remove('est-cache');
-    dernierY = y;
+    // Masqué en descendant, réaffiché en remontant ; les petits mouvements de fin de défilement ne changent rien
+    if (!menuOuvert && y > dernierY + 4 && y > 520) entete.classList.add('est-cache');
+    else if (y < dernierY - 4 || y <= 520) entete.classList.remove('est-cache');
+    if (Math.abs(y - dernierY) > 4 || y <= 520) dernierY = y;
     const ligne = 36;
     let theme = 'sombre';
     for (const s of sections) {
@@ -87,6 +110,8 @@
     menuOuvert = ouvrir;
     boutonMenu.setAttribute('aria-expanded', String(ouvrir));
     boutonMenu.querySelector('.entete__menu-txt').textContent = ouvrir ? 'Fermer' : 'Menu';
+    // Le reste de la page devient inerte tant que le menu est ouvert : la tabulation reste dans le menu
+    $$('main, footer, [data-don-flottant]').forEach((el) => { el.inert = ouvrir; });
     if (ouvrir) {
       panneau.hidden = false;
       lenis && lenis.stop();
@@ -103,6 +128,7 @@
       document.body.style.overflow = '';
       majEntete();
     }
+    E.majDonFlottant && E.majDonFlottant();
   }
   boutonMenu && boutonMenu.addEventListener('click', () => basculerMenu(!menuOuvert));
   document.addEventListener('keydown', (e) => {
@@ -196,13 +222,19 @@
     if (calme || !G || !vague) { location.href = href; return; }
     vague.classList.add('est-active');
     const etat = { p: 0 };
+    let parti = false;
+    const partir = () => {
+      if (parti) return;
+      parti = true;
+      try { sessionStorage.setItem('esaie-vague', '1'); } catch (e) { /* stockage indisponible */ }
+      location.href = href;
+    };
+    // Filet de sécurité : sur un appareil lent, on ne fait jamais attendre la page suivante
+    setTimeout(partir, 1100);
     G.to(etat, {
       p: 1, duration: 0.75, ease: 'power2.inOut',
       onUpdate: () => dessinerVague(etat.p, G.ticker.time, true),
-      onComplete: () => {
-        try { sessionStorage.setItem('esaie-vague', '1'); } catch (e) { /* stockage indisponible */ }
-        location.href = href;
-      }
+      onComplete: partir
     });
   }
   function arriverVague() {
@@ -224,7 +256,7 @@
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href]');
     if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' || a.hasAttribute('download')) return;
-    const url = new URL(a.getAttribute('href'), location.href);
+    const url = new URL(a.href);
     if (url.origin !== location.origin) return;
     if (a.dataset.objet) { const s = $('[data-objet-select]'); if (s) { s.value = a.dataset.objet; s.dispatchEvent(new Event('change', { bubbles: true })); } }
     if (a.dataset.affecter) { const s = $('[data-affectation]'); if (s) { s.value = a.dataset.affecter; s.dispatchEvent(new Event('change', { bubbles: true })); } }
@@ -236,6 +268,30 @@
     }
     if (!memePage) { e.preventDefault(); partirVers(url.href); }
   });
+
+  /* ---------- Adresses propres sur le site en ligne (évite une redirection à chaque page) ---------- */
+  const enLigne = /^https?:$/.test(location.protocol) && !/^(localhost|127\.|\[?::1)/.test(location.hostname) && !/claude/.test(location.hostname);
+  if (enLigne) {
+    $$('a[href]').forEach((a) => {
+      const h = a.getAttribute('href');
+      const m = h.match(/^(?:\/)?([\w-]+)\.html([?#].*)?$/);
+      if (m) a.setAttribute('href', (m[1] === 'index' ? '/' : '/' + m[1]) + (m[2] || ''));
+    });
+  }
+  // Préchargement de la page visée au survol ou au focus
+  const prechargees = new Set();
+  const precharger = (e) => {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a || a.target === '_blank') return;
+    const url = new URL(a.href);
+    if (url.origin !== location.origin || normaliser(url.pathname) === normaliser(location.pathname) || prechargees.has(url.pathname)) return;
+    prechargees.add(url.pathname);
+    const l = document.createElement('link');
+    l.rel = 'prefetch'; l.href = url.pathname;
+    document.head.appendChild(l);
+  };
+  document.addEventListener('pointerover', precharger, { passive: true });
+  document.addEventListener('focusin', precharger);
 
   // Arrivée avec une ancre depuis une autre page
   if (location.hash && $(location.hash)) {
@@ -276,12 +332,13 @@
   /* ---------- Reflets d’eau (pied de page, versets) ---------- */
   function animerReflets() {
     const bruit = $('[data-reflet-bruit]');
-    if (!bruit || calme || !G) return;
+    // Animé seulement sur ordinateur : sur téléphone le reflet reste immobile pour économiser la batterie
+    if (!bruit || calme || !G || !fin) return;
     let visibles = 0, compte = 0;
     const io = new IntersectionObserver((ent) => ent.forEach((x) => { visibles += x.isIntersecting ? 1 : -1; visibles = Math.max(0, visibles); }));
     $$('[data-reflet]').forEach((el) => io.observe(el));
     G.ticker.add((t) => {
-      if (!visibles || (compte++ % 2)) return;
+      if (!visibles || (compte++ % 3)) return;
       bruit.setAttribute('baseFrequency', `${(0.003 + Math.sin(t * 0.7) * 0.0012).toFixed(4)} ${(0.05 + Math.sin(t * 1.3) * 0.014).toFixed(4)}`);
     });
   }
@@ -379,12 +436,37 @@
   }
   E.Recipient = Recipient;
 
+  /* ---------- Aides communes ---------- */
+  // « a, b et c »
+  E.liste = (arr) => (arr.length < 2 ? arr[0] || '' : arr.slice(0, -1).join(', ') + ' et ' + arr[arr.length - 1]);
+  // Rend inerte tout le reste de la page pendant qu’une fenêtre est ouverte
+  E.inerte = (actif, sauf) => { Array.from(document.body.children).forEach((el) => { if (el !== sauf && el.tagName !== 'SCRIPT') el.inert = actif; }); };
+
   /* ---------- Formats ---------- */
   const nf = new Intl.NumberFormat('fr-CA', { maximumFractionDigits: 0 });
   E.montant = (v) => nf.format(v) + ' C$';
 
+  /* ---------- Bouton de don flottant (téléphone) ---------- */
+  function donFlottant() {
+    const bouton = $('[data-don-flottant]');
+    if (!bouton) return;
+    const page = document.body.dataset.page;
+    if (page === 'erreur') { bouton.remove(); return; }
+    if (page === 'parrainage') { bouton.setAttribute('href', '#formules'); $('span', bouton).textContent = 'Choisir ma formule'; }
+    const ouverture = $('.ouverture');
+    const masques = $$(page === 'parrainage' ? '#formules, #inscription, .pied' : '#don, #contact, .pied');
+    const visibles = new Set();
+    let apresOuverture = false;
+    const maj = () => bouton.classList.toggle('est-visible', apresOuverture && visibles.size === 0 && !menuOuvert);
+    if (ouverture) new IntersectionObserver((e) => { apresOuverture = !e[0].isIntersecting; maj(); }).observe(ouverture);
+    const io = new IntersectionObserver((ent) => { ent.forEach((x) => (x.isIntersecting ? visibles.add(x.target) : visibles.delete(x.target))); maj(); }, { rootMargin: '0px 0px -10% 0px' });
+    masques.forEach((m) => io.observe(m));
+    E.majDonFlottant = maj;
+  }
+
   /* ---------- Démarrage ---------- */
   function demarrer() {
+    donFlottant();
     animerTitres();
     parallaxeOuverture();
     animerReflets();

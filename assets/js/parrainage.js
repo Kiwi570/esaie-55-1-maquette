@@ -35,13 +35,35 @@
     const contribue = $('[data-contribue]');
     const recevez = $('[data-recevez]');
     const precision = $('[data-precision]');
+    const note = $('[data-note]');
+    const detail = $('[data-detail]');
+    // Distinguer un choix à la souris ou au doigt d’un choix au clavier (flèches)
+    let viaPointeur = false;
+    groupe.addEventListener('pointerdown', () => { viaPointeur = true; });
+    groupe.addEventListener('keydown', () => { viaPointeur = false; });
     const liste = (ul, arr) => {
       ul.innerHTML = '';
       arr.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
       ul.parentElement.hidden = arr.length === 0;
     };
+    function afficherFormule(lettre) {
+      const f = F[lettre];
+      impact.textContent = f.impact;
+      liste(contribue, f.contribue);
+      liste(recevez, f.recevez);
+      precision.textContent = f.precision;
+    }
     function majMontant() {
       const v = Math.max(0, Math.round(+champ.value || 0));
+      // Sous le minimum d’une formule, le soutien bascule en montant libre
+      const coche = groupe.querySelector('input:checked');
+      if (coche && coche.value !== 'L' && v > 0 && v < +coche.dataset.montant) {
+        note.textContent = `En dessous de ${coche.dataset.montant}\u00a0C$ par mois, votre soutien devient un montant libre.`;
+        groupe.querySelector('input[value="L"]').checked = true;
+        afficherFormule('L');
+        synchroniserAssistant('L', v);
+      }
+      champ.style.width = Math.max(2, String(champ.value || '').length) + 0.7 + 'ch';
       annuel.textContent = v ? `Soit ${E.montant(v * 12)} par an.` : 'Indiquez un montant mensuel.';
       recipient.valeur(v);
       synchroniserAssistant(null, v);
@@ -49,15 +71,17 @@
     function choisir(lettre, depuisAssistant) {
       const radio = groupe.querySelector(`input[value="${lettre}"]`);
       radio.checked = true;
-      const f = F[lettre];
       if (lettre !== 'L') champ.value = radio.dataset.montant;
-      impact.textContent = f.impact;
-      liste(contribue, f.contribue);
-      liste(recevez, f.recevez);
-      precision.textContent = f.precision;
+      note.textContent = '';
+      afficherFormule(lettre);
       majMontant();
       if (!depuisAssistant) synchroniserAssistant(lettre, +champ.value);
-      if (lettre === 'L' && !depuisAssistant) { champ.focus(); champ.select(); }
+      if (lettre === 'L' && !depuisAssistant && viaPointeur) { champ.focus({ preventScroll: true }); champ.select(); }
+      // Sur téléphone, le détail est plus bas : on l’amène doucement à l’écran
+      if (!depuisAssistant && viaPointeur && window.innerWidth < 1000) {
+        const r = detail.getBoundingClientRect();
+        if (r.top > window.innerHeight * 0.7) E.allerA(detail, { offset: -100, duration: 1, focus: false });
+      }
       if (G && !calme) G.fromTo('.detail__impact, .detail__colonnes', { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.06, ease: 'expo.out' });
     }
     groupe.addEventListener('change', (e) => { if (e.target.name === 'formule') choisir(e.target.value); });
@@ -80,10 +104,10 @@
       items.forEach((it, i) => it.classList.toggle('est-active', p >= i / items.length + 0.02));
     };
     const mm = G.matchMedia();
-    mm.add('(min-width: 900px) and (min-height: 640px)', () => {
+    mm.add('(min-width: 900px) and (min-height: 720px)', () => {
       ScrollTrigger.create({ trigger: bloc, start: 'top top', end: '+=140%', pin: true, scrub: 0.6, anticipatePin: 1, onUpdate: (s) => maj(s.progress) });
     });
-    mm.add('(max-width: 899px), (max-height: 639px)', () => {
+    mm.add('(max-width: 899px), (max-height: 719px)', () => {
       ScrollTrigger.create({ trigger: '.etapes__liste', start: 'top 75%', end: 'bottom 45%', scrub: true, onUpdate: (s) => maj(s.progress) });
     });
   }
@@ -119,6 +143,14 @@
     function valide() {
       retour.textContent = ''; retour.className = 'form-retour';
       if (i === 0 && !(+form.elements.m.value > 0)) { retour.textContent = 'Indiquez un montant mensuel pour continuer.'; retour.classList.add('est-erreur'); form.elements.m.focus(); return false; }
+      if (i === 0) {
+        const l = form.querySelector('[name="f"]:checked').value;
+        const min = { A: 20, B: 50, C: 100 }[l];
+        if (min && +form.elements.m.value < min) {
+          retour.textContent = `La formule ${l} commence à ${min}\u00a0C$ par mois. Choisissez « Montant libre » pour un montant plus petit.`;
+          retour.classList.add('est-erreur'); form.elements.m.focus(); return false;
+        }
+      }
       if (i === 1) {
         const manquants = [];
         [['prenom', 'votre prénom'], ['nom', 'votre nom'], ['courriel', 'votre courriel']].forEach(([n, lib]) => {
@@ -127,7 +159,7 @@
           c.setAttribute('aria-invalid', ok ? 'false' : 'true');
           if (!ok) manquants.push(lib);
         });
-        if (manquants.length) { retour.textContent = `Indiquez ${manquants.join(', ')} pour continuer.`; retour.classList.add('est-erreur'); form.querySelector('[aria-invalid="true"]').focus(); return false; }
+        if (manquants.length) { retour.textContent = `Indiquez ${E.liste(manquants)} pour continuer.`; retour.classList.add('est-erreur'); form.querySelector('[aria-invalid="true"]').focus(); return false; }
       }
       return true;
     }
@@ -165,6 +197,8 @@
       pas.forEach((p) => { p.hidden = true; });
       prec.hidden = true; suiv.hidden = true;
       fin.hidden = false;
+      fin.setAttribute('tabindex', '-1');
+      fin.focus({ preventScroll: true });
       noms.forEach((li) => li.removeAttribute('aria-current'));
       eau.style.width = '100%';
       if (G && !calme) G.from(fin, { y: 20, opacity: 0, duration: 0.7, ease: 'expo.out' });

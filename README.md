@@ -4,6 +4,7 @@ Maquette de démonstration du futur site de l’association Ésaïe 55:1 (Ottawa
 Site statique : HTML, CSS et JavaScript, sans étape de construction, prêt pour Vercel.
 
 ## Pages
+- `404.html` : page d’erreur aux couleurs du site (servie automatiquement par Vercel)
 - `index.html` : accueil (ouverture d’eau WebGL, mission et six axes, Gabon, histoires, agir, engagements, équipe, don simulé, contact)
 - `parrainage.html` : formules A, B, C et montant libre, quatre étapes, inscription simulée
 - `projets.html` : quinze actions filtrables, plantations solidaires, projets urgents, transparence
@@ -24,6 +25,9 @@ Les photos de l’équipe et le logo viennent du site actuel. Les autres images 
 
 ## Accessibilité et mouvement
 Un bouton « Mode calme » coupe l’effet d’eau et les animations ; il est activé d’office si le système demande de réduire les animations. Sans WebGL, ou sur un appareil trop lent, l’image fixe remplace l’effet d’eau.
+
+## Partage et référencement
+Chaque page a sa carte de partage (`assets/img/og-*.jpg`, 1200 × 630) et ses balises Open Graph, avec des adresses absolues sur https://esaie-55-1-maquette.vercel.app. Si le site change de domaine, mettre à jour les adresses des balises `og:` et `canonical` dans les pages. Les pages restent en `noindex` tant que c’est une maquette.
 
 ## Bibliothèques et polices
 GSAP 3.15 (ScrollTrigger, SplitText, Flip), Lenis 1.3, OGL 1.0. Polices Fraunces et Manrope (licence SIL Open Font License, fichiers dans `assets/fonts`).

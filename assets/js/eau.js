@@ -81,6 +81,10 @@ void main() {
   col = mix(abysse, col, masque);
   col += vec3(0.89, 0.71, 0.36) * anneau * 0.85;
 
+  // Grain de pellicule très léger : masque la douceur de l’image agrandie
+  float grain = fract(sin(dot(gl_FragCoord.xy + fract(uTime * 7.0) * 91.0, vec2(12.9898, 78.233))) * 43758.5453);
+  col += (grain - 0.5) * 0.035;
+
   gl_FragColor = vec4(col, 1.0);
 }`;
 
@@ -171,7 +175,7 @@ function initialiser() {
     const tri = intervalles.slice().sort((a, b) => a - b);
     const median = tri[Math.floor(tri.length / 2)];
     intervalles = [];
-    if (median <= 22) return;
+    if (median <= 34) return;
     if (renderer.dpr > 0.75) { renderer.dpr = Math.max(0.75, renderer.dpr * 0.66); redimensionner(); return; }
     arret = true;
     conteneur.classList.remove('est-pret');
@@ -209,7 +213,10 @@ function initialiser() {
     program.uniforms.uImg.value = [img.naturalWidth || 16, img.naturalHeight || 9];
     document.documentElement.classList.add('webgl');
     surveillerApres = temps() + 0.8;
-    if (document.documentElement.classList.contains('intro')) api.cacher();
+    // Pendant l’ouverture : l’eau attend la goutte ; si la goutte est déjà tombée, l’eau se révèle tout de suite
+    if (document.documentElement.classList.contains('intro')) {
+      if (E.introLancee) api.reveler(1.2); else api.cacher();
+    }
     requestAnimationFrame(() => { conteneur.classList.add('est-pret'); });
     E.eau = api;
     resoudre(api);

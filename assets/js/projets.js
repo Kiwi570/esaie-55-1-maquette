@@ -5,15 +5,24 @@
   const G = window.gsap;
   const { $, $$ } = E;
   const calme = E.calme;
+  if (G && window.Flip) G.registerPlugin(Flip);
 
   /* ---------- Filtrer les 15 actions par axe (réarrangement animé) ---------- */
   function filtres() {
     const boutons = $$('[data-filtre]');
     const items = $$('[data-actions] .action');
     const compte = $('[data-compte-actions]');
+    const libelle = $('[data-compte-libelle]');
+    let apparitions = [];
     if (!boutons.length) return;
     function appliquer(axe, anime) {
       boutons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filtre === axe)));
+      // Au premier filtrage, on arrête les apparitions au défilement pour ne pas animer deux fois les cartes
+      if (apparitions.length) {
+        apparitions.forEach((t) => t.kill());
+        apparitions = [];
+        if (G) { G.killTweensOf(items); G.set(items, { clearProps: 'opacity,transform' }); }
+      }
       const etat = anime && G && !calme ? Flip.getState(items) : null;
       let n = 0;
       items.forEach((it) => {
@@ -22,6 +31,7 @@
         if (ok) n++;
       });
       compte.textContent = n;
+      if (libelle) libelle.textContent = n > 1 ? 'actions affichées' : 'action affichée';
       if (etat) {
         Flip.from(etat, {
           duration: 0.75, ease: 'power3.inOut', absolute: true, scale: true, nested: true,
@@ -35,7 +45,7 @@
     const m = location.hash.match(/^#axe-(\w+)$/);
     if (m && boutons.some((b) => b.dataset.filtre === m[1])) appliquer(m[1], false);
     if (!calme && G) {
-      ScrollTrigger.batch('[data-actions] .action', {
+      apparitions = ScrollTrigger.batch('[data-actions] .action', {
         start: 'top 92%', once: true,
         onEnter: (els) => G.from(els, { y: 50, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.07 })
       });

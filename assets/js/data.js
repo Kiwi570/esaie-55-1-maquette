@@ -2,20 +2,21 @@
 window.ESAIE = {
   affectations: {
     general: "là où le besoin est le plus grand",
-    ludivine: "la cuisine professionnelle adaptée de Ludivine",
-    charles: "la réhabilitation de Charles",
-    prudence: "le logement de Prudence et de ses enfants",
-    laure: "l’hébergement de Laure et de ses enfants",
-    solidaire: "l’épicerie et la friperie solidaires",
-    education: "les projets éducatifs"
+    ludivine: "pour la cuisine professionnelle adaptée de Ludivine",
+    charles: "pour la réhabilitation de Charles",
+    prudence: "pour le logement de Prudence et de ses enfants",
+    laure: "pour l’hébergement de Laure et de ses enfants",
+    solidaire: "pour l’épicerie et la friperie solidaires",
+    education: "pour les projets éducatifs"
   },
+
   formules: {
     A: {
       nom: "Parrainage individuel",
       impact: "Couvre une partie de l’alimentation et des fournitures scolaires d’un jeune.",
       contribue: ["l’alimentation", "la scolarité", "les vêtements", "l’accompagnement spirituel"],
       recevez: ["un rapport régulier", "des nouvelles personnalisées", "des photos, selon consentement", "un suivi de l’impact"],
-      precision: "À préciser : le site parle à la fois d’une femme et d’un jeune pour cette formule"
+      precision: "À préciser\u00a0: le site parle à la fois d’une femme et d’un jeune pour cette formule"
     },
     B: {
       nom: "Parrainage d’une famille",
