@@ -22,8 +22,8 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/img/icone-180.png">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "NGO", "name": "Association Ésaïe 55:1", "alternateName": "Ésaïe 55-1", "url": "https://esaie-55-1-maquette.vercel.app/", "logo": "https://esaie-55-1-maquette.vercel.app/assets/img/logo-512.png", "email": "infos@esaie-55-1.org", "description": "Association chrétienne internationale basée à Ottawa et active au Gabon, qui soutient les femmes, les jeunes et les familles en situation de vulnérabilité.", "address": {"@type": "PostalAddress", "streetAddress": "2-97 St Andrew’s Street", "addressLocality": "Ottawa", "addressRegion": "ON", "addressCountry": "CA"}, "areaServed": [{"@type": "Country", "name": "Canada"}, {"@type": "Country", "name": "Gabon"}], "contactPoint": [{"@type": "ContactPoint", "telephone": "+1-418-580-9140", "contactType": "customer support", "areaServed": "CA", "availableLanguage": "French"}, {"@type": "ContactPoint", "telephone": "+241-76-29-57-80", "contactType": "customer support", "areaServed": "GA", "availableLanguage": "French"}]}</script>
-<link rel="preload" href="assets/fonts/fraunces.woff" as="font" type="font/woff" crossorigin>
-<link rel="preload" href="assets/fonts/manrope.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/main.css">
 <meta name="robots" content="noindex, nofollow">
 <script>!function(d){var c,v,u;try{c=localStorage.getItem("esaie-calme")}catch(e){}try{u=sessionStorage.getItem("esaie-intro")}catch(e){}try{v=sessionStorage.getItem("esaie-vague");sessionStorage.removeItem("esaie-vague")}catch(e){}var r=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;var calme=c==null?r:c==="1";var k=d.className.replace("no-js","js");if(calme)k+=" calme";else if(v)k+=" vague-arrivee";else if(d.hasAttribute("data-intro")&&!u&&!location.hash)k+=" intro";d.className=k}(document.documentElement);</script>
@@ -63,7 +63,7 @@
   </div>
 </header>
 
-<div class="menu-mobile" id="menu-mobile" data-menu-panneau hidden>
+<div class="menu-mobile" id="menu-mobile" data-menu-panneau hidden data-lenis-prevent>
   <div class="menu-mobile__eau" aria-hidden="true"></div>
   <nav aria-label="Navigation mobile">
     <ul class="menu-mobile__liens">
@@ -270,7 +270,7 @@
     <h3 class="histoire__nom">Ludivine<span class="histoire__titre">Restaurer un lieu de travail digne</span></h3>
     <p class="histoire__recit">Ludivine, une femme aveugle courageuse, confectionne des gâteaux pour subvenir aux besoins de sa famille. Son espace de cuisine a été fermé par l’agence de sécurité alimentaire en raison de l’insalubrité. Nous voulons lui offrir un nouvel espace de travail conforme, sécuritaire et adapté à son handicap, afin qu’elle puisse continuer à vivre de son talent.</p>
     <dl class="histoire__infos"><div><dt>Objectif</dt><dd>Reconstruire une cuisine professionnelle adaptée</dd></div><div><dt>Impact</dt><dd>Autonomie, dignité, revenu stable</dd></div></dl>
-    <div class="jauge" aria-label="Objectif financier à compléter"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
+    <div class="jauge"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
     <a class="btn btn--or" href="#don" data-affecter="ludivine" data-magnet><span>Je veux aider Ludivine</span></a>
   </div>
 </article>
@@ -280,7 +280,7 @@
     <h3 class="histoire__nom">Charles<span class="histoire__titre">Une vie renouvelée par Jésus</span></h3>
     <p class="histoire__recit">Charles a longtemps lutté contre la consommation de stupéfiants. Il a récemment décidé de suivre Jésus comme Sauveur et Seigneur personnel, un tournant majeur dans sa vie. Nous voulons l’aider à persévérer en finançant un centre de désintoxication chrétien, ainsi qu’un accompagnement spirituel et humain.</p>
     <dl class="histoire__infos"><div><dt>Objectif</dt><dd>Financer un programme chrétien de réhabilitation</dd></div><div><dt>Impact</dt><dd>Transformation durable, accompagnement spirituel</dd></div></dl>
-    <div class="jauge" aria-label="Objectif financier à compléter"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
+    <div class="jauge"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
     <a class="btn btn--or" href="#don" data-affecter="charles" data-magnet><span>Je veux soutenir Charles</span></a>
   </div>
 </article>
@@ -290,7 +290,7 @@
     <h3 class="histoire__nom">Prudence<span class="histoire__titre">Une mère courage qui reconstruit sa vie</span></h3>
     <p class="histoire__recit">Prudence a été abandonnée par son conjoint, qui a laissé derrière lui cinq enfants. Dans cette épreuve, elle a choisi de suivre Jésus comme Sauveur et Seigneur personnel. Elle vend des accessoires en ligne pour survivre, mais sa situation reste fragile. Nous voulons lui assurer un logement stable, afin qu’elle puisse reconstruire sa vie avec ses enfants.</p>
     <dl class="histoire__infos"><div><dt>Objectif</dt><dd>Assurer un logement stable et sécuritaire</dd></div><div><dt>Impact</dt><dd>Protection des enfants, reconstruction familiale</dd></div></dl>
-    <div class="jauge" aria-label="Objectif financier à compléter"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
+    <div class="jauge"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
     <a class="btn btn--or" href="#don" data-affecter="prudence" data-magnet><span>Je veux aider Prudence et ses enfants</span></a>
   </div>
 </article>
@@ -300,7 +300,7 @@
     <h3 class="histoire__nom">Laure<span class="histoire__titre">Vivre avec le diabète et protéger ses enfants</span></h3>
     <p class="histoire__recit">Laure est mère de trois enfants et vit avec un diabète de type 2. Seule, elle doit gérer à la fois sa maladie et les besoins de sa famille. Nous l’accompagnons dans sa prise en charge médicale, mais sa situation reste précaire. Nous voulons lui assurer un hébergement stable, afin qu’elle puisse prendre soin d’elle-même et de ses enfants dans un environnement sécuritaire.</p>
     <dl class="histoire__infos"><div><dt>Objectif</dt><dd>Offrir un logement sécuritaire et stable</dd></div><div><dt>Impact</dt><dd>Santé, stabilité, protection des enfants</dd></div></dl>
-    <div class="jauge" aria-label="Objectif financier à compléter"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
+    <div class="jauge"><span class="jauge__eau"></span><span class="jauge__txt">Objectif financier à compléter</span></div>
     <a class="btn btn--or" href="#don" data-affecter="laure" data-magnet><span>Je veux soutenir Laure et sa famille</span></a>
   </div>
 </article>
@@ -530,7 +530,7 @@
 
   <div class="pied__grille">
     <div class="pied__bloc pied__bloc--marque">
-      <img class="pied__logo" src="assets/img/logo-512.webp" srcset="assets/img/logo-256.webp 256w, assets/img/logo-512.webp 512w, assets/img/logo-1024.webp 1024w" sizes="96px" width="1024" height="1024" alt="Logo de l’association Ésaïe 55:1 : une colombe, une croix, du pain et du raisin, entourés d'une couronne d'épines et du poisson ΙΧΘΥΣ" decoding="async" loading="lazy">
+      <img class="pied__logo" src="assets/img/logo-512.webp" srcset="assets/img/logo-256.webp 256w, assets/img/logo-512.webp 512w, assets/img/logo-1024.webp 1024w" sizes="96px" width="1024" height="1024" alt="Logo de l’association Ésaïe 55:1&nbsp;: une colombe, une croix, du pain et du raisin, entourés d’une couronne d’épines et du poisson ΙΧΘΥΣ" decoding="async" loading="lazy">
       <p class="pied__verset">« Venez, vous tous qui avez soif, venez aux eaux… »</p>
       <p class="pied__ref">Ésaïe 55:1</p>
     </div>

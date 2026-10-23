@@ -101,7 +101,7 @@
       const corps = $('.urgent__corps', b);
       const ouvrir = (o, anime) => {
         bouton.setAttribute('aria-expanded', String(o));
-        if (!anime || calme || !G) { corps.hidden = !o; ScrollTrigger && ScrollTrigger.refresh(); return; }
+        if (!anime || calme || !G) { corps.hidden = !o; window.ScrollTrigger && ScrollTrigger.refresh(); return; }
         if (o) {
           corps.hidden = false;
           G.fromTo(corps, { height: 0, opacity: 0 }, { height: 'auto', opacity: 1, duration: 0.7, ease: 'expo.out', onComplete: () => ScrollTrigger.refresh() });

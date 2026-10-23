@@ -103,6 +103,9 @@
   window.addEventListener('resize', demanderEntete);
   majEntete();
 
+  // ancre → élément, sans querySelector (un hash comme « #_=_ » ou « #1 » lèverait une erreur)
+  function parId(h) { try { return document.getElementById(decodeURIComponent(String(h).replace(/^#/, ''))); } catch (e) { return null; } }
+
   /* ---------- Menu mobile ---------- */
   const boutonMenu = $('[data-menu]');
   const panneau = $('[data-menu-panneau]');
@@ -116,6 +119,7 @@
       panneau.hidden = false;
       lenis && lenis.stop();
       document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('menu-ouvert');
       entete.classList.remove('est-cache', 'sur-clair');
       if (G && !calme) {
         G.fromTo(panneau, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.7, ease: 'expo.out' });
@@ -126,11 +130,14 @@
       panneau.hidden = true;
       lenis && lenis.start();
       document.body.style.overflow = '';
+      document.documentElement.classList.remove('menu-ouvert');
       majEntete();
     }
     E.majDonFlottant && E.majDonFlottant();
   }
   boutonMenu && boutonMenu.addEventListener('click', () => basculerMenu(!menuOuvert));
+  // fenêtre élargie menu ouvert (rotation) : le bouton disparaît, on referme
+  window.matchMedia('(min-width: 1081px)').addEventListener?.('change', (m) => { if (m.matches && menuOuvert) basculerMenu(false); });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && menuOuvert) { basculerMenu(false); boutonMenu.focus(); }
   });
@@ -138,6 +145,7 @@
 
   /* ---------- Curseur goutte et ondes au clic ---------- */
   if (fin && !calme && G) {
+    document.documentElement.classList.add('curseur-actif'); // le curseur natif n'est masqué que si la goutte existe
     const curseur = $('.curseur');
     const anneau = $('.curseur__anneau', curseur);
     const point = $('.curseur__point', curseur);
@@ -260,10 +268,13 @@
     if (url.origin !== location.origin) return;
     if (a.dataset.objet) { const s = $('[data-objet-select]'); if (s) { s.value = a.dataset.objet; s.dispatchEvent(new Event('change', { bubbles: true })); } }
     if (a.dataset.affecter) { const s = $('[data-affectation]'); if (s) { s.value = a.dataset.affecter; s.dispatchEvent(new Event('change', { bubbles: true })); } }
-    const memePage = normaliser(url.pathname) === normaliser(location.pathname);
-    if (memePage && url.hash) {
-      const cible = $(url.hash);
-      if (cible) { e.preventDefault(); E.allerA(cible); history.replaceState(null, '', url.hash); }
+    // une ancre écrite « #id » vise toujours la page courante (même sur la 404, où <base href="/"> la réécrit)
+    const brut = a.getAttribute('href') || '';
+    const memePage = brut.startsWith('#') || normaliser(url.pathname) === normaliser(location.pathname);
+    const hash = brut.startsWith('#') ? brut : url.hash;
+    if (memePage && hash) {
+      const cible = parId(hash);
+      if (cible) { e.preventDefault(); E.allerA(cible); history.replaceState(null, '', hash); }
       return;
     }
     if (!memePage) { e.preventDefault(); partirVers(url.href); }
@@ -294,8 +305,8 @@
   document.addEventListener('focusin', precharger);
 
   // Arrivée avec une ancre depuis une autre page
-  if (location.hash && $(location.hash)) {
-    window.addEventListener('load', () => setTimeout(() => E.allerA(location.hash, { immediate: false, duration: 1.2 }), 350));
+  if (location.hash && parId(location.hash)) {
+    window.addEventListener('load', () => setTimeout(() => E.allerA(parId(location.hash), { immediate: false, duration: 1.2 }), 350));
   }
 
   /* ---------- Titres de section : lignes qui montent de l’eau ---------- */
