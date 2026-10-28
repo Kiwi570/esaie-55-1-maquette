@@ -80,6 +80,10 @@
   /* ---------- En-tête : fond, masquage, couleur selon la section ---------- */
   const entete = $('[data-entete]');
   const sections = $$('main [data-theme], footer[data-theme]');
+  // Hauteur réelle de l’en-tête, pour les visuels collants (--entete-h)
+  const mesurerEntete = () => html.style.setProperty('--entete-h', entete.offsetHeight + 'px');
+  mesurerEntete();
+  if (window.ResizeObserver) new ResizeObserver(mesurerEntete).observe(entete);
   let dernierY = window.scrollY, menuOuvert = false, tickEntete = false;
   function majEntete() {
     tickEntete = false;
