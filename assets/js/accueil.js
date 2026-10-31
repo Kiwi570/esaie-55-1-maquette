@@ -154,7 +154,7 @@
       const anim = G.to(piste, {
         x: () => -distance(), ease: 'none',
         scrollTrigger: {
-          trigger: section, start: 'top top', end: () => '+=' + distance(), pin: true, scrub: 0.8, invalidateOnRefresh: true, anticipatePin: 1,
+          trigger: section, start: 'top top', end: () => '+=' + distance(), pin: true, scrub: 0.8, invalidateOnRefresh: true,
           onUpdate: (s) => G.set(niveau, { scaleX: s.progress })
         }
       });

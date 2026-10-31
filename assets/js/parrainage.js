@@ -105,7 +105,7 @@
     };
     const mm = G.matchMedia();
     mm.add('(min-width: 900px) and (min-height: 720px)', () => {
-      ScrollTrigger.create({ trigger: bloc, start: 'top top', end: '+=140%', pin: true, scrub: 0.6, anticipatePin: 1, onUpdate: (s) => maj(s.progress) });
+      ScrollTrigger.create({ trigger: bloc, start: 'top top', end: '+=140%', pin: true, scrub: 0.6, onUpdate: (s) => maj(s.progress) });
     });
     mm.add('(max-width: 899px), (max-height: 719px)', () => {
       ScrollTrigger.create({ trigger: '.etapes__liste', start: 'top 75%', end: 'bottom 45%', scrub: true, onUpdate: (s) => maj(s.progress) });
